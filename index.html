@@ -48,6 +48,7 @@ button{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px s
 .lg button{all:unset;cursor:pointer;display:inline-flex;align-items:center;border-radius:3px}.lg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.lg button[aria-pressed="true"]{color:var(--ink);font-weight:500}
 #tip b{font-weight:500}
 .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 36px;align-items:start}.pair figure{margin:24px 0 0}@media(max-width:760px){.pair{grid-template-columns:1fr}}
+.trio{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 28px}@media(max-width:900px){.trio{grid-template-columns:1fr}}
 .toc{margin:30px 0 4px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0 16px}
 .toct{font:500 12px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .toc ol{list-style:none;margin:0;padding:0;columns:2;column-gap:36px;counter-reset:t}
@@ -75,10 +76,12 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <li><a href="#limits"><span>What the data can’t tell you</span></a></li>
 </ol></nav>
 </div>
-<div class="wide"><div class="pair"><figure><div class="smt">SF₆ in the atmosphere</div><svg id="g0" viewBox="0 0 540 360" role="img" aria-label="Global atmospheric SF6 concentration, 1997 to 2026, rising from 4.0 to 12.7 parts per trillion"></svg>
+<div class="wide"><div class="pair trio"><figure><div class="smt">SF₆ emissions by source</div><svg id="g1" viewBox="0 0 420 380" role="img" aria-label="Global SF6 emissions by source, 1990 to 2025"></svg><div class="lg" id="lg1"></div>
+<figcaption>Global SF₆ emissions in tonnes per year, summed over the countries in EDGAR’s dataset, by source category. This is one bottom-up estimate; the section on comparing estimates below shows how others differ.</figcaption></figure>
+<figure><div class="smt">SF₆ in the atmosphere</div><svg id="g0" viewBox="0 0 420 380" role="img" aria-label="Global atmospheric SF6 concentration, 1997 to 2026, rising from 4.0 to 12.7 parts per trillion"></svg>
 <figcaption>Global monthly mean SF₆ concentration at the surface, in parts per trillion, from NOAA’s monitoring network, July 1997 to June 2026. The most recent year is preliminary.</figcaption></figure>
-<figure><div class="smt">SF₆ emissions by source</div><svg id="g1" viewBox="0 0 540 360" role="img" aria-label="Global SF6 emissions by source, 1990 to 2025"></svg><div class="lg" id="lg1"></div>
-<figcaption>Global SF₆ emissions in tonnes per year, summed over the countries in EDGAR’s dataset, by source category. This is one bottom-up estimate; the section on comparing estimates below shows how others differ.</figcaption></figure></div></div>
+<figure><div class="smt">SF₆ in the atmosphere: scenarios</div><svg id="g2" viewBox="0 0 420 380" role="img" aria-label="SF6 concentrations implied by the seven CMIP7 scenarios to 2100"></svg>
+<figcaption>Concentrations implied by the seven CMIP7 scenarios’ emissions, from a one-box calculation with a 1,300-year lifetime, in parts per trillion. Colours and details are in the section on where emissions could go.</figcaption></figure></div></div>
 <div class="w">
 <h2 id="why">Why a few thousand tonnes matter</h2>
 <p>SF₆ is an excellent electrical insulator and does not burn or react easily. The same stability is the problem: once released it lasts for many centuries, and its 100-year warming potential is about 23,500 times that of CO₂ on the IPCC’s fifth-assessment scale, which EDGAR uses. By that measure, 9,770 tonnes in 2025 is about 230 million tonnes of CO₂-equivalent. Concentrations have risen every year since NOAA’s global record began in 1997, from 4.0 to 12.7 parts per trillion in June 2026, and the yearly increase has not slowed.</p>
@@ -224,14 +227,14 @@ function stack(svg,w,h,sd,tot,yr,lgId,ov){
   s.append("rect").attr("x",m.l).attr("y",m.t).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b).attr("fill","transparent").on("pointermove",e=>{const r=svg.getBoundingClientRect(),d=DS[ds];year=Math.max(d.y0,Math.min(d.y1,Math.round(x.invert((e.clientX-r.left)*w/r.width))));sl.value=year;draw()})}
  document.getElementById(lgId).innerHTML=keys.map(k=>`<span><i style="background:${SEC[k][1]}"></i>${SEC[k][0]}</span>`).join("")+ov.map(o=>lineKey(o.k)).join("")+(ov.some(o=>o.lo)?bandKey:"");
 }
-stack(document.getElementById("g1"),540,360,allSec,total,null,"lg1");
+stack(document.getElementById("g1"),420,380,allSec,total,null,"lg1");
 d3.select("#g1").append("text").attr("x",54).attr("y",14).attr("dy",".7em").attr("class","lbl mut").text("tonnes per year");
 
 /* Atmospheric concentration */
 (function(){
- const svg=document.getElementById("g0"),w=540,h=360,m={l:44,r:76,t:14,b:26},s=d3.select(svg);
+ const svg=document.getElementById("g0"),w=420,h=380,m={l:40,r:76,t:14,b:26},s=d3.select(svg);
  const x=d3.scaleLinear([1997,2027],[m.l,w-m.r]),y=d3.scaleLinear([0,14],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+ s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).tickValues([2000,2010,2020]));
  s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(7).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.5)).call(g=>g.select(".domain").remove());
  s.append("path").datum(N).attr("fill","var(--accent)").attr("opacity",.1).attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
  s.append("path").datum(N).attr("fill","none").attr("stroke","var(--accent)").attr("stroke-width",2.2).attr("d",d3.line().x(d=>x(d[0])).y(d=>y(d[1])));
@@ -396,4 +399,29 @@ const SC=[{"k":"H","n":"High","ssp":"SSP3","model":"GCAM","v":[9352,9521,9691,98
 })();
 
 
+/* Top row, right: concentrations implied by the CMIP7 scenarios (1,300-year lifetime) */
+(function(){
+ const KT=25853,TAU=1278,c0=d3.mean(N.filter(d=>Math.floor(d[0])===2023),d=>d[1]),f=Math.exp(-1/TAU);
+ const CD=SC.map(d=>{const c=[c0];for(let i=0;i<d.v.length-1;i++)c.push(c[i]*f+d.v[i]/KT*TAU*(1-f));return {k:d.k,n:d.n,c}});
+ const svg=document.getElementById("g2"),w=420,h=380,m={l:40,r:22,t:14,b:26},s=d3.select(svg);
+ const x=d3.scaleLinear([2015,2100],[m.l,w-m.r]),y=d3.scaleLinear([0,46],[h-m.b,m.t]);
+ s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).tickValues([2020,2040,2060,2080,2100]));
+ s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
+ s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("dy",".7em").attr("class","lbl mut").text("parts per trillion");
+ const ln=d3.line().x((_,i)=>x(2023+i)).y(v=>y(v));
+ s.append("g").selectAll("path").data(CD).join("path").attr("fill","none").attr("stroke",d=>`var(--s${d.k})`).attr("stroke-width",2).attr("stroke-linejoin","round").attr("d",d=>ln(d.c));
+ s.append("path").datum(N.filter(d=>d[0]>=2015)).attr("fill","none").attr("stroke","var(--accent)").attr("stroke-width",2.4).attr("d",d3.line().x(d=>x(d[0])).y(d=>y(d[1])));
+ s.append("text").attr("x",x(2016)).attr("y",y(13.5)-12).attr("class","lbl mut").text("Observed");
+ const last=d=>d.c[d.c.length-1];
+ s.append("g").selectAll("text").data(CD.filter(d=>["H","HL","M"].includes(d.k))).join("text").attr("class","lbl").attr("x",x(2100)-2).attr("text-anchor","end").attr("y",d=>y(last(d))-7).attr("fill",d=>`var(--s${d.k})`).style("font-size","13px").text(d=>`${d.n} ${d3.format(".0f")(last(d))}`);
+ const lo=CD.filter(d=>["ML","L","LN","VL"].includes(d.k)).map(last);
+ s.append("text").attr("class","lbl").attr("x",x(2100)-2).attr("text-anchor","end").attr("y",y(d3.min(lo))+18).attr("fill","var(--muted)").style("font-size","13px").text(`Four lowest ${d3.format(".0f")(d3.min(lo))}–${d3.format(".0f")(d3.max(lo))}`);
+ const vl=s.append("line").attr("y1",m.t).attr("y2",h-m.b).attr("stroke","currentColor").attr("stroke-dasharray","3 3").attr("opacity",.5).style("display","none");
+ s.append("rect").attr("x",x(2023)).attr("y",m.t).attr("width",x(2100)-x(2023)).attr("height",h-m.t-m.b).attr("fill","transparent")
+  .on("pointermove",e=>{const r=svg.getBoundingClientRect(),yr=Math.max(2023,Math.min(2100,Math.round(x.invert((e.clientX-r.left)*w/r.width)))),i=yr-2023;
+   vl.style("display",null).attr("x1",x(yr)).attr("x2",x(yr));
+   tip.style("display","block").style("left",Math.min(e.clientX+14,innerWidth-230)+"px").style("top",e.clientY+12+"px")
+    .html(`<b>${yr}</b><br>`+CD.slice().sort((a,b)=>b.c[i]-a.c[i]).map(d=>`<span style="color:var(--s${d.k})">●</span> ${d.n}: ${d3.format(".1f")(d.c[i])} ppt`).join("<br>"))})
+  .on("pointerleave",()=>{vl.style("display","none");tip.style("display","none")});
+})();
 </script></body></html>
