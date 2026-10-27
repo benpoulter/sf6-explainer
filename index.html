@@ -93,6 +93,20 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <tr><td>European Union (27)</td><td>200</td><td>209</td><td>230</td><td>250 (220–290)</td></tr></table></div>
 <p>Three patterns stand out. First, the atmosphere sees more SF₆ than the countries in EDGAR’s file add up to: the inversion’s 2021 world total is about 30% higher, though EDGAR’s own figure has caught up to roughly that level by 2025. Second, where the inversion can check reported numbers, it finds them too low. Vojta and colleagues conclude that the US, EU and China all underestimated their emissions in their reports to the UN. For the EU, the 27 member states reported 209 tonnes for 2021, against an inversion estimate of about 250.</p>
 <p>Third, the bottom-up estimates disagree most about China. GAINS puts China at 8,400 tonnes in 2020, nearly its entire global total, which the inversion study calls unrealistic. Excluding the run seeded with GAINS, the inversion puts China at about 5,160 tonnes in 2021, close to EDGAR. The inversion is weakest where there are few monitoring stations, which includes much of South Asia, Africa, the Middle East and South America. There its answer depends heavily on the starting guess, so the world total is better constrained than the split between those regions.</p>
+<h2>Africa, the Middle East and developing countries</h2>
+<p>The comparison above covers the places best watched by monitoring stations. Elsewhere, estimates rest almost entirely on bottom-up accounting, and the two models disagree sharply. Here I group countries three ways: Africa; the Middle East, taken as the Gulf states, Iran, Iraq, the Levant and Yemen (Turkey and Egypt are left out); and developing countries, defined as those outside Annex I of the UN climate convention. China accounts for nearly three-quarters of that last group’s EDGAR total in 2021, so the fourth panel removes it.</p>
+</div>
+<div class="wide"><figure><div class="cmp" id="reg"></div><div class="lg" id="lg4" style="margin-top:14px"></div>
+<figcaption>SF₆ emissions in tonnes per year. No country in these groups except Kazakhstan and Serbia filed a full inventory to the UNFCCC in 2025, and the inversion study publishes no figures for these regions, so only the two models are shown. GAINS totals are summed from its 0.5° grid.</figcaption></figure></div>
+<div class="w">
+<div class="tw"><table class="nums"><tr><th>Tonnes SF₆</th><th>EDGAR 2021</th><th>GAINS 2020</th><th>Countries in EDGAR</th></tr>
+<tr><td>Africa</td><td>246</td><td>24</td><td>6</td></tr>
+<tr><td>Middle East</td><td>477</td><td>73</td><td>6</td></tr>
+<tr><td>Developing countries</td><td>6,600</td><td>8,830</td><td>36</td></tr>
+<tr><td>Developing countries, excluding China</td><td>1,760</td><td>400</td><td>35</td></tr></table></div>
+<p>Outside China, the models are far apart. EDGAR puts Africa at about 250 tonnes in 2021, roughly ten times GAINS’s figure for 2020. For the Middle East the gap is more than sixfold, and for developing countries other than China about fourfold. The gap is not about coverage. EDGAR’s file includes only six African and six Middle Eastern countries, yet its totals are still far higher, because it assigns those countries much larger emissions from electrical equipment. South Africa is about 97 tonnes in EDGAR and 7 in GAINS; Iran is 187 and 10.</p>
+<p>Including China flips the picture. GAINS’s China estimate is so large that it puts developing countries as a whole above EDGAR, which is the figure the inversion study judged unrealistic.</p>
+<p>Measurements from the atmosphere can’t yet settle this. Few monitoring stations sample air from Africa, the Middle East or South Asia, so the inversion results there stay close to whichever starting guess is used. For Africa, Vojta and colleagues find the inversion pushes both the GAINS-based and EDGAR-based estimates upward, suggesting both are too low, but cannot correct them fully. Their broader conclusion is that emissions appear to be rising in poorly monitored regions, including India, Africa and South America, and that more monitoring there is needed to confirm it.</p>
 <h2>Alternatives to SF₆</h2>
 <p>The source that dominates the data, electrical equipment, is also where replacements are furthest along. This section covers switchgear only. Magnesium casting and chip making use SF₆ for different jobs and have their own substitutes, which I haven’t covered.</p>
 <p>There are two main approaches, and they differ in one important way.</p>
@@ -245,6 +259,28 @@ setDS("e");
   drawLines(svg,x,y,ov);
  });
  document.getElementById("lg3").innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+["u","g","v"].map(lineKey).join("")+bandKey;
+})();
+
+/* Regional comparison */
+(function(){
+ const AFR="DZA AGO BEN BWA BFA BDI CPV CMR CAF TCD COM COG COD CIV DJI EGY GNQ ERI SWZ ETH GAB GMB GHA GIN GNB KEN LSO LBR LBY MDG MWI MLI MRT MUS MAR MOZ NAM NER NGA RWA STP SEN SYC SLE SOM ZAF SSD SDN TZA TGO TUN UGA ZMB ZWE ESH".split(" ");
+ const ME="BHR IRN IRQ ISR JOR KWT LBN OMN PSE QAT SAU SYR ARE YEM".split(" ");
+ const A1=new Set("AUS AUT BLR BEL BGR CAN HRV CYP CZE DNK EST FIN FRA DEU GRC HUN ISL IRL ITA JPN LVA LIE LTU LUX MLT MCO NLD NZL NOR POL PRT ROU RUS SVK SVN ESP SWE CHE TUR UKR GBR USA".split(" "));
+ const DEV=[...new Set([...Object.keys(D.data),...Object.keys(G)])].filter(c=>!A1.has(c));
+ const P=[["Africa",AFR],["Middle East",ME],["Developing countries",DEV],["Developing countries, excluding China",DEV.filter(c=>c!=="CHN")]];
+ const box=d3.select("#reg");
+ P.forEach(([title,isos])=>{
+  const div=box.append("div").attr("class","sm");div.append("div").attr("class","smt").text(title);
+  const svg=div.append("svg").attr("viewBox","0 0 520 250").attr("role","img").attr("aria-label",`SF6 emission estimates for ${title}`),w=520,h=250,m={l:46,r:22,t:8,b:24};
+  const e=sumOver(D.data,isos,Y.length).map(v=>v||0);
+  const ov=[{k:"g",y0:2005,m:sumOver(G,isos,16)}];
+  const x=d3.scaleLinear([1995,2025],[m.l,w-m.r]),y=d3.scaleLinear([0,Math.max(d3.max(e),ovMax(ov))*1.08],[h-m.b,m.t]);
+  svg.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+  svg.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format("~s")));
+  svg.append("path").datum(e.map((v,i)=>[Y[i],v]).filter(d=>d[0]>=1995)).attr("fill","var(--edgar)").attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
+  drawLines(svg,x,y,ov);
+ });
+ document.getElementById("lg4").innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+lineKey("g");
 })();
 
 </script></body></html>
