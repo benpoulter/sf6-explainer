@@ -45,27 +45,47 @@ button{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px s
 .smt{font:500 19px/1.2 "Newsreader",Georgia,serif;margin:0 0 4px}
 .nums{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0 20px;font-variant-numeric:tabular-nums}.nums td,.nums th{text-align:right;padding:6px 0 6px 12px;border-bottom:1px solid var(--rule);font-weight:400}.nums td:first-child,.nums th:first-child{text-align:left;padding-left:0}.nums th{color:var(--muted);font-size:13px}
 .tw{overflow-x:auto}
+.toc{margin:30px 0 4px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0 16px}
+.toct{font:500 12px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.toc ol{list-style:none;margin:0;padding:0;columns:2;column-gap:36px;counter-reset:t}
+.toc li{counter-increment:t;break-inside:avoid;padding:5px 0}
+.toc a{display:flex;gap:12px;color:var(--ink);text-decoration:none;line-height:1.35;font-size:15px}
+.toc a::before{content:counter(t,decimal-leading-zero);font:500 13px/1.55 "IBM Plex Sans",system-ui,sans-serif;color:var(--accent);font-variant-numeric:tabular-nums;flex:none}
+.toc a:hover span,.toc a:focus-visible span{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+@media(max-width:560px){.toc ol{columns:1}}
+h2{scroll-margin-top:calc(18px + env(safe-area-inset-top,0px))}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 </style></head><body>
 <div class="w">
 <h1>Sulfur hexafluoride: a small emission with a large warming effect</h1>
 <p class="lede">SF₆ is a synthetic gas made for electrical equipment, chip factories and metal casting. The world emits only about 9,770 tonnes of it a year, but each tonne warms the climate like roughly 23,500 tonnes of CO₂ would. Because almost none of it breaks down, nearly everything ever released is still in the air, and the concentration has more than tripled since 1997.</p>
+<nav class="toc" aria-label="Contents"><p class="toct">Contents</p><ol>
+<li><a href="#why"><span>Why a few thousand tonnes matter</span></a></li>
+<li><a href="#sources"><span>Where the emissions come from</span></a></li>
+<li><a href="#map"><span>Explore the map</span></a></li>
+<li><a href="#map-notes"><span>What the map shows</span></a></li>
+<li><a href="#estimates"><span>Four estimates, two methods</span></a></li>
+<li><a href="#regions"><span>Africa, the Middle East and developing countries</span></a></li>
+<li><a href="#alternatives"><span>Alternatives to SF₆</span></a></li>
+<li><a href="#limits"><span>What the data can’t tell you</span></a></li>
+</ol></nav>
 </div>
 <div class="wide"><figure><svg id="g0" viewBox="0 0 1080 300" role="img" aria-label="Global atmospheric SF6 concentration, 1997 to 2026, rising from 4.0 to 12.7 parts per trillion"></svg>
 <figcaption>Global monthly mean SF₆ concentration at the surface, in parts per trillion, from NOAA’s monitoring network, July 1997 to June 2026. The most recent year is preliminary.</figcaption></figure>
 <figure><svg id="g1" viewBox="0 0 1080 340" role="img" aria-label="Global SF6 emissions by source, 1990 to 2025"></svg><div class="lg" id="lg1"></div>
 <figcaption>Global SF₆ emissions in tonnes per year, summed over the countries in EDGAR’s dataset, by source category. This is one bottom-up estimate; the section on comparing estimates below shows how others differ.</figcaption></figure></div>
 <div class="w">
-<h2>Why a few thousand tonnes matter</h2>
+<h2 id="why">Why a few thousand tonnes matter</h2>
 <p>SF₆ is an excellent electrical insulator and does not burn or react easily. The same stability is the problem: once released it lasts for thousands of years (about 3,200 in the commonly cited estimate), and its 100-year warming potential is about 23,500 times that of CO₂ on the IPCC’s fifth-assessment scale, which EDGAR uses. By that measure, 9,770 tonnes in 2025 is about 230 million tonnes of CO₂-equivalent. Concentrations have risen every year since NOAA’s global record began in 1997, from 4.0 to 12.7 parts per trillion in June 2026, and the yearly increase has not slowed.</p>
 <p>There are no natural sources worth counting. Nearly all of it is made by reacting sulfur with fluorine in chemical plants.</p>
-<h2>Where the emissions come from</h2>
+<h2 id="sources">Where the emissions come from</h2>
 <p>Most SF₆ is not emitted when it is made. It escapes during use, mostly as slow leakage from equipment and at end of life. EDGAR splits emissions into four source categories:</p>
 <div class="sec" style="border-color:#2b6f8f"><b>Electrical equipment and other product use (92% of 2025 emissions).</b> SF₆ insulates high-voltage switchgear and circuit breakers. It leaks over the equipment’s lifetime and when it is serviced or scrapped.</div>
 <div class="sec" style="border-color:#c8862b"><b>Metal industry (5%).</b> It covers molten magnesium to stop it burning during casting. China is the world’s largest magnesium producer.</div>
 <div class="sec" style="border-color:#7a4fa0"><b>Electronics industry (3%).</b> Semiconductor and display makers use it for etching and for cleaning process chambers.</div>
 <div class="sec" style="border-color:#b23a48"><b>Chemical industry (1%).</b> This is the production of SF₆ itself. Only eight countries report emissions here: Belgium, China, France, Germany, Italy, Japan, Russia and the US.</div>
-<h2>Explore the map</h2>
+<h2 id="map">Explore the map</h2>
 <p>Countries are colored by their emissions in the selected year, on a scale set by each source’s largest value. Switch between three bottom-up sources: EDGAR, the inventories countries report to the UN, and the GAINS model. Click a country to see its history: the colored areas are EDGAR’s estimate by source, and the lines show the other estimates where they exist. Drag the slider to move through time.</p>
 </div>
 <div class="wide"><div class="seg" id="dsw" role="group" aria-label="Data source for the map"><button data-k="e" aria-pressed="true">EDGAR</button><button data-k="u" aria-pressed="false">Country reports (UNFCCC)</button><button data-k="g" aria-pressed="false">GAINS</button></div><p class="dsn" id="dsn"></p>
@@ -77,9 +97,9 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <svg id="ch" viewBox="0 0 400 230" role="img" aria-label="Time series of SF6 emissions"></svg><div class="lg" id="lg2"></div>
 <p style="margin:12px 0 0"><button id="rs" hidden>Show all countries combined</button></p></div></div></div>
 <div class="w">
-<h2>What the map shows</h2>
+<h2 id="map-notes">What the map shows</h2>
 <p>China has been the largest emitter since about 2010 (the US led before that) and accounted for about 74% of the dataset’s 2025 total, up from about 2% in 1990. India, the US, Iran, Saudi Arabia and South Korea come next. Those are places with large grids, magnesium industries or chip plants, not necessarily SF₆ factories. Where a gas is made and where it leaks are often different places.</p>
-<h2>Four estimates, two methods</h2>
+<h2 id="estimates">Four estimates, two methods</h2>
 <p>Three of the datasets here count SF₆ from the bottom up. They take activity data, such as how much switchgear is installed or how much magnesium is cast, and multiply it by an assumed leak or emission rate. EDGAR does this for every country with one method. GAINS, IIASA’s emissions model, does the same with its own assumptions. The national inventories that 42 countries submitted to the UN climate convention (UNFCCC) in 2025 are those countries’ own counts, covering 1990 to 2023.</p>
 <p>The fourth works from the top down. Martin Vojta and colleagues (2024) took SF₆ measurements from monitoring stations worldwide and ran an atmospheric transport model backward in time to work out where the gas must have been released, for 2005 to 2021. Because the inversion needs a starting guess, they ran it three times, seeded with country reports, EDGAR and GAINS. The line shows the average of the three runs and the shading shows their combined uncertainty range.</p>
 </div>
@@ -93,7 +113,7 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <tr><td>European Union (27)</td><td>200</td><td>209</td><td>230</td><td>250 (220–290)</td></tr></table></div>
 <p>Three patterns stand out. First, the atmosphere sees more SF₆ than the countries in EDGAR’s file add up to: the inversion’s 2021 world total is about 30% higher, though EDGAR’s own figure has caught up to roughly that level by 2025. Second, where the inversion can check reported numbers, it finds them too low. Vojta and colleagues conclude that the US, EU and China all underestimated their emissions in their reports to the UN. For the EU, the 27 member states reported 209 tonnes for 2021, against an inversion estimate of about 250.</p>
 <p>Third, the bottom-up estimates disagree most about China. GAINS puts China at 8,400 tonnes in 2020, nearly its entire global total, which the inversion study calls unrealistic. Excluding the run seeded with GAINS, the inversion puts China at about 5,160 tonnes in 2021, close to EDGAR. The inversion is weakest where there are few monitoring stations, which includes much of South Asia, Africa, the Middle East and South America. There its answer depends heavily on the starting guess, so the world total is better constrained than the split between those regions.</p>
-<h2>Africa, the Middle East and developing countries</h2>
+<h2 id="regions">Africa, the Middle East and developing countries</h2>
 <p>The comparison above covers the places best watched by monitoring stations. Elsewhere, estimates rest almost entirely on bottom-up accounting, and the two models disagree sharply. Here I group countries three ways: Africa; the Middle East, taken as the Gulf states, Iran, Iraq, the Levant and Yemen (Turkey and Egypt are left out); and developing countries, defined as those outside Annex I of the UN climate convention. China accounts for nearly three-quarters of that last group’s EDGAR total in 2021, so the fourth panel removes it.</p>
 </div>
 <div class="wide"><figure><div class="cmp" id="reg"></div><div class="lg" id="lg4" style="margin-top:14px"></div>
@@ -107,7 +127,7 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <p>Outside China, the models are far apart. EDGAR puts Africa at about 250 tonnes in 2021, roughly ten times GAINS’s figure for 2020. For the Middle East the gap is more than sixfold, and for developing countries other than China about fourfold. The gap is not about coverage. EDGAR’s file includes only six African and six Middle Eastern countries, yet its totals are still far higher, because it assigns those countries much larger emissions from electrical equipment. South Africa is about 97 tonnes in EDGAR and 7 in GAINS; Iran is 187 and 10.</p>
 <p>Including China flips the picture. GAINS’s China estimate is so large that it puts developing countries as a whole above EDGAR, which is the figure the inversion study judged unrealistic.</p>
 <p>Measurements from the atmosphere can’t yet settle this. Few monitoring stations sample air from Africa, the Middle East or South Asia, so the inversion results there stay close to whichever starting guess is used. For Africa, Vojta and colleagues find the inversion pushes both the GAINS-based and EDGAR-based estimates upward, suggesting both are too low, but cannot correct them fully. Their broader conclusion is that emissions appear to be rising in poorly monitored regions, including India, Africa and South America, and that more monitoring there is needed to confirm it.</p>
-<h2>Alternatives to SF₆</h2>
+<h2 id="alternatives">Alternatives to SF₆</h2>
 <p>The source that dominates the data, electrical equipment, is also where replacements are furthest along. This section covers switchgear only. Magnesium casting and chip making use SF₆ for different jobs and have their own substitutes, which I haven’t covered.</p>
 <p>There are two main approaches, and they differ in one important way.</p>
 <div class="ex"><b>Vacuum switching with clean air.</b> Vacuum interrupters break the current and the insulating gas is plain air (80% nitrogen, 20% oxygen), which has no warming effect. This is long established at medium voltage. Siemens Energy reports more than 1,000 clean-air switchgear units in operation, the first in a Bergen, Norway substation in 2018. The open question is high voltage. Hitachi Energy has argued in EU consultations that clean-air high-voltage substations would be over 50% larger and need far more aluminium, while other manufacturers are building clean-air equipment at higher and higher voltages.</div>
@@ -123,7 +143,7 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <div class="ex"><b>Longest track record, Norway.</b> Clean-air equipment has run there since 2018. An industry market report also credits GE Vernova with two 420 kV SF₆-free substations for Statnett and Equinor; I couldn’t confirm that from a primary source.</div>
 <div class="ex"><b>First adopters elsewhere.</b> SP Energy Networks installed the UK’s first SF₆-free unit. Belgium’s grid operator Elia and Siemens Energy are developing a 420 kV clean-air design under an EU programme.</div>
 <p>Most of these claims come from the manufacturers and their customers, so independent long-term reliability data is still thin. And because SF₆ equipment lasts for decades, leakage from the installed base will keep showing up in emissions data long after new sales switch over.</p>
-<h2>What the data can’t tell you</h2>
+<h2 id="limits">What the data can’t tell you</h2>
 <p>EDGAR estimates emissions from activity data, country reports and expert judgment; it does not measure them. The latest years are extrapolated with a fast-track method and are provisional. The file has no plant locations, so the map cannot show where SF₆ is made, only which countries report production-related emissions. Grey countries have no estimate in the selected dataset, not necessarily zero emissions.</p>
 <p>The country reports cover only the 42 countries that filed a full inventory in 2025, mostly industrialized ones, and run to 2023. The United States did not submit in 2025, and Belarus marked its SF₆ figures as withheld under a flexibility provision. GAINS publishes its global SF₆ estimate as a 0.5° grid rather than a country table, so I summed grid cells within each country’s simplified border; small countries and border regions may be slightly misallocated. The inversion results are published for the world, China, the US and the EU only.</p>
 <footer class="muted">Data: EDGAR_2026_GHG F-gases, European Commission Joint Research Centre, IPCC 2006 categories, converted from Gg to tonnes. Country reports: 2025 national inventory submissions to the UNFCCC, common reporting table 10 (sheet 5), converted from kt to tonnes. GAINS: Purohit and Lindl (2024), Gridded Global Emissions of SF₆, IIASA, Zenodo, doi:10.5281/zenodo.12708771. Inversion: Vojta et al. (2024), Atmospheric Chemistry and Physics 24, 12465–12493, doi:10.5194/acp-24-12465-2024, appendix tables A1–A4 (averages of three runs, with minimum and maximum uncertainty limits). Atmospheric concentration: NOAA Global Monitoring Laboratory, global monthly mean SF₆. Boundaries: Natural Earth via datasets/geo-countries, simplified. Alternatives section: EU Regulation 2024/573 and announcements from Hitachi Energy, Siemens Energy and ESB Networks, plus industry summaries. Lifetime and warming potential are from IPCC assessments.</footer>
@@ -280,6 +300,10 @@ setDS("e");
   svg.append("path").datum(e.map((v,i)=>[Y[i],v]).filter(d=>d[0]>=1995)).attr("fill","var(--edgar)").attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
   drawLines(svg,x,y,ov);
  });
+ /* Contents links: scroll in place, and open a section named in the link */
+ const rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+ document.querySelectorAll(".toc a").forEach(a=>a.addEventListener("click",e=>{const t=document.getElementById(a.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:rm?"auto":"smooth",block:"start"})}}));
+ if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)setTimeout(()=>t.scrollIntoView({block:"start"}),50)}
  document.getElementById("lg4").innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+lineKey("g");
 })();
 
