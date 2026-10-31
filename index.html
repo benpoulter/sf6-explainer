@@ -57,6 +57,10 @@ h3.sub{font:500 20px/1.3 "Newsreader",Georgia,serif;margin:28px 0 6px}
 .life li b{display:block;font-weight:500;margin-bottom:3px}.life li b::before{content:counter(lf)". ";color:var(--accent);font-variant-numeric:tabular-nums}
 .life li span{color:var(--muted)}
 p a{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}p a:hover{text-decoration-thickness:2px}
+.byline{font-size:13px;color:var(--muted);margin:12px 0 0}
+.fb{margin-top:56px}.fbrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}.fbrow label{font-size:14px;color:var(--muted)}
+.fbrow select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;max-width:100%}
+.fbbtn{font-size:14px;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:4px;padding:6px 14px}.fbbtn:hover{opacity:.88}.fbbtn:focus-visible,.fbrow select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .toc{margin:30px 0 4px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0 16px}
 .toct{font:500 12px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .toc ol{list-style:none;margin:0;padding:0;columns:2;column-gap:36px;counter-reset:t}
@@ -71,6 +75,7 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <div class="w">
 <h1>Sulfur hexafluoride: a small emission with a large warming effect</h1>
 <p class="lede">SF₆ is a synthetic gas made for electrical equipment, chip factories and metal casting. The world emits only about 9,770 tonnes of it a year, but each tonne warms the climate like roughly 23,500 tonnes of CO₂ would. Because almost none of it breaks down, nearly everything ever released is still in the air, and the concentration has more than tripled since 1997.</p>
+<p class="byline">This website was generated using Claude Opus 5.5.</p>
 <nav class="toc" aria-label="Contents"><p class="toct">Contents</p><ol>
 <li><a href="#why"><span>Why a few thousand tonnes matter</span></a></li>
 <li><a href="#sources"><span>Where the emissions come from</span></a></li>
@@ -240,6 +245,10 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <h2 id="limits">What the data can’t tell you</h2>
 <p>EDGAR estimates emissions from activity data, country reports and expert judgment; it does not measure them. The latest years are extrapolated with a fast-track method and are provisional. The file has no plant locations, so the map cannot show where SF₆ is made, only which countries report production-related emissions. Grey countries have no estimate in the selected dataset, not necessarily zero emissions.</p>
 <p>The country reports cover only the 42 countries that filed a full inventory in 2025, mostly industrialized ones, and run to 2023. The United States did not submit in 2025, and Belarus marked its SF₆ figures as withheld under a flexibility provision. GAINS publishes its global SF₆ estimate as a 0.5° grid rather than a country table, so I summed grid cells within each country’s simplified border; small countries and border regions may be slightly misallocated. The inversion’s tables cover the world, China, the US and the EU as averages of three runs; its published grid, used for the regions and for every other country on the map, holds only the run seeded with EDGAR v8, which I summed by country in the same way.</p>
+<section class="fb" aria-labelledby="feedback"><h2 id="feedback">Comments welcome</h2>
+<p>Spotted an error, know a better source, or found something unclear? Choose the section and open a GitHub issue. It needs a free GitHub account.</p>
+<div class="fbrow"><label for="fbs">Section</label><select id="fbs"><option value="">General</option></select><a id="fbl" class="fbbtn" href="https://github.com/benpoulter/sf6-explainer/issues/new" target="_blank" rel="noopener">Comment on GitHub</a></div>
+</section>
 <footer class="muted">Data: EDGAR_2026_GHG F-gases, European Commission Joint Research Centre, IPCC 2006 categories, converted from Gg to tonnes. Country reports: 2025 national inventory submissions to the UNFCCC, common reporting table 10 (sheet 5), converted from kt to tonnes. GAINS: Purohit and Lindl (2024), Gridded Global Emissions of SF₆, IIASA, Zenodo, doi:10.5281/zenodo.12708771. Inversion: Vojta et al. (2024), Atmospheric Chemistry and Physics 24, 12465–12493, doi:10.5194/acp-24-12465-2024, appendix tables A1–A4 (averages of three runs, with minimum and maximum uncertainty limits); regional sums from the gridded EDGAR-seeded run, Vojta (2025), Annual global SF₆ emissions quantified by inverse modeling using FLEXPART and FLEXINVERT, Zenodo, doi:10.5281/zenodo.18033046. Atmospheric concentration: NOAA Global Monitoring Laboratory, global monthly mean SF₆. Scenarios: ScenarioMIP-CMIP7 IAM quantification, harmonized and infilled emissions for marker scenarios, v0.2 (Kikstra, Nicholls et al., 2026), doi:10.5281/zenodo.19825038. Boundaries: Natural Earth via datasets/geo-countries, simplified. Alternatives section: EU Regulation 2024/573 and announcements from Hitachi Energy, Siemens Energy and ESB Networks, plus industry summaries. Lifetime and warming potential are from IPCC assessments (AR5 for the 23,500 warming potential EDGAR uses; AR6 Table 7.SM.7 for the 3,200-year lifetime), with revised lifetimes from Ray et al. (2017), Journal of Geophysical Research: Atmospheres 122, 4626–4638, and Kovács et al. (2017), Atmospheric Chemistry and Physics 17, 883–898. Climate and Clean Air Coalition: Scientific Advisory Panel, SAP Briefing on Sulphur Hexafluoride (SF₆), 2026, ccacoalition.org. Why SF₆ is worth solving: US EPA, Global Non-CO₂ Greenhouse Gas Emission Projections and Marginal Abatement Cost Analysis (2019) and SF₆ Emission Reduction Partnership reports; leak rates and the 2003 European bank from “Reductions of SF₆ emissions from high and medium voltage electrical equipment in Europe” (2005), Environmental Sciences, doi:10.1080/15693430500402234; EU bank and bank growth from the ECOS SF₆ briefing (2022); fossil CO₂ and the 1.5 °C budget from the Global Carbon Budget 2025; warming per tonne of CO₂ (0.45 °C per 1,000 billion tonnes) and 20-, 100- and 500-year warming potentials from IPCC AR6. Warming: CMIP7 SF₆ concentrations (historical, Climate Resource CR-CMIP-1-0-0, doi:10.5281/zenodo.14892947; scenarios, CMIP7 ScenarioMIP GHG forcing, doi:10.5281/zenodo.19243739), radiative efficiency 0.567 W m⁻² ppb⁻¹ (AR6 Table 7.SM.7) and the AR6 two-layer emulator parameters (7.SM.5.2; equilibrium sensitivity 3.0 °C, transient 1.8 °C); total forcing and human-caused warming from Indicators of Global Climate Change 2025 (Forster et al., 2026). The burden, removal and scenario concentration figures convert NOAA’s global mean using 1 ppt ≈ 25,900 tonnes, in a one-box model with first-order loss.</footer>
 </div><div id="tip"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -531,6 +540,15 @@ const WL={"h":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.
  document.getElementById("lg7").innerHTML=`<span><i style="background:var(--sH);opacity:.35"></i>Avoidable warming (High vs. stopping in 2026)</span>`;
  yearHover(svg,s,x,2000,2300,m.t,h-m.b,w,yr=>{const i=yr-Y0,f=v=>d3.format(".4f")(v/1000)+" °C";
   return `<b>${yr}</b><br>`+(yr<=2025?`Historical: ${f(WL.z[i])}`:`<span style="color:var(--sH)">●</span> High: ${f(WL.h[i])}<br><span style="color:var(--sM)">●</span> Medium: ${f(WL.m[i])}<br><span style="color:var(--sVL)">●</span> Very Low: ${f(WL.vl[i])}<br>– – Emissions stop in 2026: ${f(WL.z[i])}<br>Avoidable vs. High: ${f(WL.h[i]-WL.z[i])}`)});
+})();
+/* Comments: build a prefilled GitHub issue link for the chosen section */
+(function(){
+ const sel=document.getElementById("fbs"),a=document.getElementById("fbl"),base="https://benpoulter.github.io/sf6-explainer/";
+ document.querySelectorAll("h2[id]").forEach(h=>{if(h.id!=="feedback"){const o=document.createElement("option");o.value=h.id;o.textContent=h.textContent;sel.appendChild(o)}});
+ const upd=()=>{const id=sel.value,name=id?sel.options[sel.selectedIndex].text:"General";
+  const q=new URLSearchParams({title:`[${name}] `,body:`Section: ${name}\nLink: ${base}${id?"#"+id:""}\n\nComment:\n`});
+  a.href="https://github.com/benpoulter/sf6-explainer/issues/new?"+q.toString()};
+ sel.addEventListener("change",upd);upd();
 })();
 /* Contents links scroll in place; a section named in the link opens once the page has loaded (old #map links go to the map section) */
 (function(){
