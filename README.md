@@ -61,7 +61,7 @@ pip install -r scripts/requirements.txt
 ./scripts/run_all.sh
 ```
 
-`run_all.sh` ends with `06_checks.py`, which compares the outputs with published values (for example the inversion's country sums against the paper's tables) and with figures quoted on the page, and fails if any differ.
+`run_all.sh` ends with two checks that fail on any difference: `06_checks.py` compares the outputs with published values (for example the inversion's country sums against the paper's tables) and with figures quoted on the page, and `07_page_matches_data.py` confirms that the series embedded in `index.html` match the CSVs in `data/`.
 
 Most inputs download automatically into `raw/`. Three need placing by hand:
 

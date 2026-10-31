@@ -294,12 +294,15 @@ const tip=d3.select("#tip");
 function showTip(e,content,html){const n=tip.node();tip.style("display","block")[html?"html":"text"](content);const w=n.offsetWidth,h=n.offsetHeight;
  tip.style("left",Math.max(4,Math.min(e.clientX+14,innerWidth-w-8))+"px").style("top",(e.clientY+14+h>innerHeight-4?e.clientY-h-10:e.clientY+14)+"px")}
 const hideTip=()=>tip.style("display","none");
+/* On touch screens a tooltip stays until the page scrolls or the reader taps outside a chart */
+addEventListener("scroll",hideTip,{passive:true});
+document.addEventListener("pointerdown",e=>{if(!e.target.closest("svg"))hideTip()});
 /* Hover strip that snaps to whole years, with a guide line and tooltip */
 function yearHover(svg,s,x,y0,y1,top,bottom,w,html){
  const vl=s.append("line").attr("y1",top).attr("y2",bottom).attr("stroke","currentColor").attr("stroke-dasharray","3 3").attr("opacity",.5).style("display","none");
  s.append("rect").attr("x",x(y0)).attr("y",top).attr("width",x(y1)-x(y0)).attr("height",bottom-top).attr("fill","transparent")
-  .on("pointermove",e=>{const r=svg.getBoundingClientRect(),yr=Math.max(y0,Math.min(y1,Math.round(x.invert((e.clientX-r.left)*w/r.width))));vl.style("display",null).attr("x1",x(yr)).attr("x2",x(yr));showTip(e,html(yr),true)})
-  .on("pointerleave",()=>{vl.style("display","none");hideTip()});
+  .on("pointerdown pointermove",e=>{const r=svg.getBoundingClientRect(),yr=Math.max(y0,Math.min(y1,Math.round(x.invert((e.clientX-r.left)*w/r.width))));vl.style("display",null).attr("x1",x(yr)).attr("x2",x(yr));showTip(e,html(yr),true)})
+  .on("pointerleave",e=>{if(e.pointerType!=="touch"){vl.style("display","none");hideTip()}});
 }
 /* One-box model: scenario emissions (t/yr) to concentration (ppt), from NOAA's 2023 mean, 1 ppt = 25,853 t */
 function oneBox(tau){const c0=d3.mean(N.filter(d=>Math.floor(d[0])===2023),d=>d[1]),f=Math.exp(-1/tau);
@@ -360,10 +363,10 @@ unitLabel(d3.select("#g1"),{l:48,t:10},"tonnes per year");
  unitLabel(s,m,"parts per trillion");
  const dot=s.append("circle").attr("r",3.5).attr("fill","var(--ink)").style("display","none"),mo=d3.timeFormat("%b %Y");
  s.append("rect").attr("x",m.l).attr("y",m.t).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b).attr("fill","transparent")
-  .on("pointermove",e=>{const r=svg.getBoundingClientRect(),t=x.invert((e.clientX-r.left)*w/r.width),d=N[d3.minIndex(N,q=>Math.abs(q[0]-t))];
+  .on("pointerdown pointermove",e=>{const r=svg.getBoundingClientRect(),t=x.invert((e.clientX-r.left)*w/r.width),d=N[d3.minIndex(N,q=>Math.abs(q[0]-t))];
    dot.style("display",null).attr("cx",x(d[0])).attr("cy",y(d[1]));const yy=Math.floor(d[0]),mm=Math.round((d[0]-yy)*12+.5)-1;
    showTip(e,mo(new Date(yy,mm,1))+": "+d3.format(".2f")(d[1])+" ppt")})
-  .on("pointerleave",()=>{dot.style("display","none");hideTip()});
+  .on("pointerleave",e=>{if(e.pointerType!=="touch"){dot.style("display","none");hideTip()}});
 })();
 
 /* Map */
