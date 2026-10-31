@@ -44,6 +44,14 @@ raw/              raw inputs, not committed (downloaded by the scripts or placed
 
 **Warming.** Radiative forcing = 0.567 W m⁻² ppb⁻¹ × concentration (IPCC AR6 Table 7.SM.7). Temperature follows the AR6 two-layer emulator used for its emission metrics (Chapter 7 Supplementary Material, 7.SM.5.2): C = 7.7 and C₀ = 147 W yr m⁻² K⁻¹, λ = 1.31 W m⁻² K⁻¹, efficacy ε = 1.03, κ = 0.88 W m⁻² K⁻¹, giving ECS 3.0 K and TCR 1.8 K (checked by the script). The likely range scales λ for ECS 2.5 to 4.0 K; it does not include uncertainty in radiative efficiency or emissions. The "emissions stop in 2026" case holds concentrations on the record to 2025 and then lets them decay with a 1,278-year lifetime.
 
+**Known limitations.**
+- EDGAR "world" totals are sums over the 76 countries in its file; countries it doesn't list are missing, and the latest years are preliminary.
+- The emissions check in section 01 converts NOAA's surface growth rate with whole-atmosphere air mass. This overstates emissions because the stratosphere lags the surface; the page says so and points to the inversion instead.
+- The country-level inversion data is a single run seeded with EDGAR, so it is partly anchored to EDGAR. At 1° resolution, emissions near borders can be assigned to the wrong country (for example South Korea or Taiwan next to China's coast).
+- The GAINS country totals reflect how GAINS spread emissions across its grid, not GAINS's own national estimates.
+- CO₂-equivalent figures use EDGAR's 100-year warming potential of 23,500 (IPCC AR5) unless stated; AR6's 25,200 raises them by about 7%.
+- The avoidable-warming comparison (High scenario vs. emissions stopping in 2026) spans two extremes; the page also gives the smaller Medium-vs-Very-Low difference. Warming values are tabulated to four decimals only to separate scenarios.
+
 **Other figures on the page.** Total human-caused forcing (3.10 W m⁻²) and warming (1.37 °C) in 2025: Indicators of Global Climate Change 2025. Fossil CO₂ (38.1 Gt in 2025) and the remaining 1.5 °C budget (170 Gt): Global Carbon Budget 2025. Warming per tonne of CO₂ (0.45 °C per 1,000 Gt) and 20-, 100- and 500-year warming potentials: IPCC AR6. Abatement costs: US EPA (2019). Further sources are listed at the foot of the page.
 
 ## Reproducing the data
@@ -52,6 +60,8 @@ raw/              raw inputs, not committed (downloaded by the scripts or placed
 pip install -r scripts/requirements.txt
 ./scripts/run_all.sh
 ```
+
+`run_all.sh` ends with `06_checks.py`, which compares the outputs with published values (for example the inversion's country sums against the paper's tables) and with figures quoted on the page, and fails if any differ.
 
 Most inputs download automatically into `raw/`. Three need placing by hand:
 
