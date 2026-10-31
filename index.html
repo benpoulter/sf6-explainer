@@ -260,6 +260,30 @@ const EU27="AUT BEL BGR HRV CYP CZE DNK EST FIN FRA DEU GRC HUN IRL ITA LVA LTU 
 const allSec={};Object.values(D.sec).forEach(o=>Object.entries(o).forEach(([k,a])=>{allSec[k]=allSec[k]||Y.map(()=>0);a.forEach((v,i)=>allSec[k][i]+=v)}));
 const total=Y.map((_,i)=>d3.sum(Object.values(D.data),a=>a[i]));
 const fmt=v=>v==null?"–":v<10?d3.format(".2f")(v):d3.format(",.0f")(v);
+/* Axes: years along the bottom, values on the left; grid = opacity of light horizontal gridlines */
+function axes(s,x,y,w,h,m,{xt,yt,yf,grid}={}){
+ const xa=d3.axisBottom(x).tickFormat(d3.format("d"));Array.isArray(xt)?xa.tickValues(xt):xa.ticks(xt);
+ s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(xa);
+ const ya=d3.axisLeft(y).ticks(yt);if(yf)ya.tickFormat(d3.format(yf));if(grid)ya.tickSize(-(w-m.l-m.r));
+ const g=s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(ya);
+ if(grid){g.selectAll(".tick line").attr("opacity",grid);g.select(".domain").remove()}
+}
+/* Unit label in the top-left corner of a chart */
+const unitLabel=(s,m,t)=>s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("dy",".7em").attr("class","lbl mut").text(t);
+/* Small-multiple panels: EDGAR as a filled area, other estimates as lines */
+function smallMultiples(boxId,lgId,panels,keys){
+ const box=d3.select("#"+boxId),w=520,h=250,m={l:46,r:22,t:8,b:24};
+ panels.forEach(({title,e,ov})=>{
+  const div=box.append("div").attr("class","sm");div.append("div").attr("class","smt").text(title);
+  const svg=div.append("svg").attr("viewBox",`0 0 ${w} ${h}`).attr("role","img").attr("aria-label",`SF6 emission estimates for ${title}`);
+  e=e.map(v=>v||0);
+  const x=d3.scaleLinear([1995,2025],[m.l,w-m.r]),y=d3.scaleLinear([0,Math.max(d3.max(e),ovMax(ov))*1.08],[h-m.b,m.t]);
+  axes(svg,x,y,w,h,m,{xt:6,yt:4,yf:"~s"});
+  svg.append("path").datum(e.map((v,i)=>[Y[i],v]).filter(d=>d[0]>=1995)).attr("fill","var(--edgar)").attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
+  drawLines(svg,x,y,ov);
+ });
+ document.getElementById(lgId).innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+keys.map(lineKey).join("")+(panels.some(p=>p.ov.some(o=>o.lo))?bandKey:"");
+}
 /* Tooltip, kept inside the window */
 const tip=d3.select("#tip");
 function showTip(e,content,html){const n=tip.node();tip.style("display","block")[html?"html":"text"](content);const w=n.offsetWidth,h=n.offsetHeight;
@@ -305,8 +329,7 @@ function stack(svg,w,h,sd,tot,yr,lgId,ov){
  const x=d3.scaleLinear([Y[0],Y[Y.length-1]],[m.l,w-m.r]),y=d3.scaleLinear([0,Math.max(d3.max(tot)||0,ovMax(ov))*1.06||1],[h-m.b,m.t]);
  const keys=Object.keys(SEC).filter(k=>sd[k]&&d3.max(sd[k])>0);
  const st=d3.stack().keys(keys)(Y.map((_,i)=>Object.fromEntries(keys.map(k=>[k,sd[k][i]]))));
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(w>500?8:5));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format("~s")));
+ axes(s,x,y,w,h,m,{xt:w>500?8:5,yt:5,yf:"~s"});
  st.forEach(l=>s.append("path").datum(l).attr("fill",SEC[l.key][1]).attr("opacity",ov.length?.7:.88).attr("d",d3.area().x((_,i)=>x(Y[i])).y0(q=>y(q[0])).y1(q=>y(q[1]))));
  drawLines(s,x,y,ov);
  if(yr!=null){
@@ -315,14 +338,13 @@ function stack(svg,w,h,sd,tot,yr,lgId,ov){
  document.getElementById(lgId).innerHTML=keys.map(k=>`<span><i style="background:${SEC[k][1]}"></i>${SEC[k][0]}</span>`).join("")+ov.map(o=>lineKey(o.k)).join("")+(ov.some(o=>o.lo)?bandKey:"");
 }
 stack(document.getElementById("g1"),420,380,allSec,total,null,"lg1");
-d3.select("#g1").append("text").attr("x",54).attr("y",14).attr("dy",".7em").attr("class","lbl mut").text("tonnes per year");
+unitLabel(d3.select("#g1"),{l:48,t:10},"tonnes per year");
 
 /* Atmospheric concentration */
 (function(){
  const svg=document.getElementById("g0"),w=420,h=380,m={l:40,r:76,t:14,b:26},s=d3.select(svg);
  const x=d3.scaleLinear([1997,2027],[m.l,w-m.r]),y=d3.scaleLinear([0,14],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).tickValues([2000,2010,2020]));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(7).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.5)).call(g=>g.select(".domain").remove());
+ axes(s,x,y,w,h,m,{xt:[2000,2010,2020],yt:7,grid:.5});
  s.append("path").datum(N).attr("fill","var(--accent)").attr("opacity",.1).attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
  s.append("path").datum(N).attr("fill","none").attr("stroke","var(--accent)").attr("stroke-width",2.2).attr("d",d3.line().x(d=>x(d[0])).y(d=>y(d[1])));
  const L=N[N.length-1],F=N[0];
@@ -330,7 +352,7 @@ d3.select("#g1").append("text").attr("x",54).attr("y",14).attr("dy",".7em").attr
  s.append("text").attr("x",x(L[0])+10).attr("y",y(L[1])+4).attr("class","lbl").text(d3.format(".1f")(L[1])+" ppt");
  s.append("text").attr("x",x(L[0])+10).attr("y",y(L[1])+20).attr("class","lbl mut").text("June 2026");
  s.append("text").attr("x",x(F[0])+6).attr("y",y(F[1])+22).attr("class","lbl mut").text(d3.format(".1f")(F[1])+" ppt, mid-1997");
- s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("class","lbl mut").attr("dy",".7em").text("parts per trillion");
+ unitLabel(s,m,"parts per trillion");
  const dot=s.append("circle").attr("r",3.5).attr("fill","var(--ink)").style("display","none"),mo=d3.timeFormat("%b %Y");
  s.append("rect").attr("x",m.l).attr("y",m.t).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b).attr("fill","transparent")
   .on("pointermove",e=>{const r=svg.getBoundingClientRect(),t=x.invert((e.clientX-r.left)*w/r.width),d=N[d3.minIndex(N,q=>Math.abs(q[0]-t))];
@@ -380,56 +402,30 @@ function draw(){
 }
 setDS("e");
 
-/* Comparison small multiples */
-(function(){
- const P=[["World","WLD",null],["China","CHN",["CHN"]],["United States","USA",["USA"]],["European Union (27)","EU",EU27]];
- const box=d3.select("#cmp");
- P.forEach(([title,vk,isos])=>{
-  const div=box.append("div").attr("class","sm");div.append("div").attr("class","smt").text(title);
-  const svg=div.append("svg").attr("viewBox","0 0 520 250").attr("role","img").attr("aria-label",`SF6 emission estimates for ${title}`),w=520,h=250,m={l:46,r:22,t:8,b:24};
-  const e=isos?sumOver(D.data,isos,Y.length):total;
-  const ov=[];
-  if(isos&&isos.some(c=>U[c]))ov.push({k:"u",y0:1995,m:sumOver(U,isos.filter(c=>U[c]),34).slice(5)});
-  ov.push({k:"g",y0:2005,m:isos?sumOver(G,isos,16):DS.g.tot});
-  ov.push({k:"v",y0:2005,...V[vk]});
-  const x=d3.scaleLinear([1995,2025],[m.l,w-m.r]),y=d3.scaleLinear([0,Math.max(d3.max(e),ovMax(ov))*1.08],[h-m.b,m.t]);
-  svg.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
-  svg.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format("~s")));
-  svg.append("path").datum(e.map((v,i)=>[Y[i],v]).filter(d=>d[0]>=1995)).attr("fill","var(--edgar)").attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
-  drawLines(svg,x,y,ov);
- });
- document.getElementById("lg3").innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+["u","g","v"].map(lineKey).join("")+bandKey;
-})();
+/* Four estimates, two methods: world, China, US, EU-27 */
+smallMultiples("cmp","lg3",[["World","WLD",null],["China","CHN",["CHN"]],["United States","USA",["USA"]],["European Union (27)","EU",EU27]].map(([title,vk,isos])=>{
+ const ov=[];
+ if(isos&&isos.some(c=>U[c]))ov.push({k:"u",y0:1995,m:sumOver(U,isos.filter(c=>U[c]),34).slice(5)});
+ ov.push({k:"g",y0:2005,m:isos?sumOver(G,isos,16):DS.g.tot},{k:"v",y0:2005,...V[vk]});
+ return {title,e:isos?sumOver(D.data,isos,Y.length):total,ov};
+}),["u","g","v"]);
 
 const VR={"Africa":{"m":[119,142,182,197,194,208,190,226,194,246,272,248,276,333,281,284,303],"p":[134,142,150,159,167,175,184,192,200,209,217,226,234,242,251,259,268]},"Middle East":{"m":[272,210,475,619,498,654,779,742,448,853,693,511,486,1209,511,433,833],"p":[246,260,274,334,309,320,336,348,362,377,390,405,419,433,448,462,476]},"Latin America and the Caribbean":{"m":[55,61,72,74,59,52,52,52,59,62,57,57,66,67,67,66,74],"p":[56,58,64,67,54,42,45,47,54,62,56,54,57,59,61,64,66]},"Asia":{"m":[2471,2016,3538,4589,4905,5093,4840,5478,6392,7448,6913,5130,6063,6846,5702,6077,7028],"p":[3610,3163,3572,3749,3776,3694,3842,4003,4280,4551,4745,4881,5108,5553,5825,6100,6448]}};
-/* Regional comparison */
+/* Regions: Africa, Middle East, Latin America and the Caribbean, Asia */
 (function(){
  const AFR="DZA AGO BEN BWA BFA BDI CPV CMR CAF TCD COM COG COD CIV DJI EGY GNQ ERI SWZ ETH GAB GMB GHA GIN GNB KEN LSO LBR LBY MDG MWI MLI MRT MUS MAR MOZ NAM NER NGA RWA STP SEN SYC SLE SOM ZAF SSD SDN TZA TGO TUN UGA ZMB ZWE ESH".split(" ");
  const ME="BHR IRN IRQ ISR JOR KWT LBN OMN PSE QAT SAU SYR ARE YEM".split(" ");
  const LAC="ATG ARG ABW BHS BRB BLZ BOL BRA VGB CYM CHL COL CRI CUB CUW DMA DOM ECU SLV FLK GUF GRD GLP GTM GUY HTI HND JAM MTQ MEX MSR NIC PAN PRY PER PRI BLM KNA LCA MAF VCT SXM SUR TTO TCA VIR URY VEN".split(" ");
  const ASIA="KAZ KGZ TJK TKM UZB CHN HKG MAC MNG PRK KOR JPN TWN BRN KHM IDN LAO MYS MMR PHL SGP THA TLS VNM AFG BGD BTN IND MDV NPL PAK LKA".split(" ");
- const P=[["Africa",AFR],["Middle East",ME],["Latin America and the Caribbean",LAC],["Asia",ASIA]];
- const box=d3.select("#reg");
- P.forEach(([title,isos])=>{
-  const div=box.append("div").attr("class","sm");div.append("div").attr("class","smt").text(title);
-  const svg=div.append("svg").attr("viewBox","0 0 520 250").attr("role","img").attr("aria-label",`SF6 emission estimates for ${title}`),w=520,h=250,m={l:46,r:22,t:8,b:24};
-  const e=sumOver(D.data,isos,Y.length).map(v=>v||0);
-  const ov=[{k:"g",y0:2005,m:sumOver(G,isos,16)},{k:"p",y0:2005,m:VR[title].p},{k:"v",y0:2005,m:VR[title].m}];
-  const x=d3.scaleLinear([1995,2025],[m.l,w-m.r]),y=d3.scaleLinear([0,Math.max(d3.max(e),ovMax(ov))*1.08],[h-m.b,m.t]);
-  svg.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
-  svg.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(d3.format("~s")));
-  svg.append("path").datum(e.map((v,i)=>[Y[i],v]).filter(d=>d[0]>=1995)).attr("fill","var(--edgar)").attr("d",d3.area().x(d=>x(d[0])).y0(y(0)).y1(d=>y(d[1])));
-  drawLines(svg,x,y,ov);
- });
- document.getElementById("lg4").innerHTML=`<span><i style="background:var(--edgar)"></i>EDGAR (all sources)</span>`+["g","v","p"].map(lineKey).join("");
+ smallMultiples("reg","lg4",[["Africa",AFR],["Middle East",ME],["Latin America and the Caribbean",LAC],["Asia",ASIA]].map(([title,isos])=>
+  ({title,e:sumOver(D.data,isos,Y.length),ov:[{k:"g",y0:2005,m:sumOver(G,isos,16)},{k:"p",y0:2005,m:VR[title].p},{k:"v",y0:2005,m:VR[title].m}]})),["g","v","p"]);
 })();
 const SC=[{"k":"H","n":"High","ssp":"SSP3","model":"GCAM","v":[9352,9521,9691,9832,9974,10115,10257,10399,10430,10460,10490,10521,10551,10531,10512,10492,10472,10452,10397,10342,10287,10231,10176,10207,10238,10268,10299,10330,10379,10428,10477,10526,10575,10617,10658,10699,10740,10782,10820,10859,10898,10936,10975,11020,11065,11110,11155,11201,11244,11287,11330,11373,11416,11455,11494,11533,11573,11612,11636,11661,11685,11709,11734,11760,11786,11812,11838,11865,11894,11924,11953,11983,12012,12068,12123,12178,12234,12289]},{"k":"HL","n":"High-to-Low","ssp":"SSP5","model":"WITCH","v":[9352,9435,9516,9705,9889,10070,10248,10421,10485,10546,10605,10662,10717,10685,10653,10619,10585,10550,10416,10282,10149,10017,9886,9750,9614,9479,9345,9212,9074,8937,8801,8666,8533,8417,8301,8187,8073,7959,7844,7729,7615,7502,7390,6780,6180,5592,5014,4448,4219,3995,3774,3558,3345,3250,3156,3064,2973,2884,2832,2780,2728,2676,2623,2574,2524,2475,2425,2376,2332,2288,2245,2201,2158,2117,2076,2036,1995,1955]},{"k":"M","n":"Medium","ssp":"SSP2","model":"IMAGE","v":[9352,9360,9367,8332,7303,6282,5268,4260,4002,3746,3491,3238,2987,2972,2956,2941,2926,2911,2888,2865,2842,2819,2796,2775,2753,2732,2711,2689,2695,2701,2707,2713,2718,2723,2729,2734,2739,2744,2759,2773,2788,2802,2816,2830,2844,2858,2871,2884,2905,2925,2946,2966,2986,3005,3024,3043,3062,3080,3130,3179,3229,3278,3328,3377,3427,3476,3526,3576,3639,3703,3767,3831,3895,3958,4022,4086,4150,4214]},{"k":"ML","n":"Medium-to-Low","ssp":"SSP2","model":"COFFEE","v":[9352,9360,9367,8332,7303,6282,5268,4260,4002,3746,3491,3238,2987,2972,2956,2941,2926,2911,3608,4300,4987,5669,6345,5995,5648,5303,4961,4621,4357,4095,3835,3577,3320,3066,2814,2563,2314,2067,2016,1965,1914,1864,1814,1764,1715,1666,1618,1569,1544,1519,1494,1469,1444,1420,1395,1371,1347,1323,1306,1290,1273,1256,1239,1222,1206,1189,1172,1155,1138,1121,1104,1087,1069,1052,1035,1018,1001,984]},{"k":"L","n":"Low","ssp":"SSP2","model":"MESSAGEix-GLOBIOM","v":[9352,9585,9818,9208,8597,7986,7373,6760,6189,5617,5045,4471,3897,3855,3812,3769,3727,3684,3638,3591,3545,3498,3452,3347,3242,3137,3031,2926,2826,2726,2626,2526,2426,2325,2224,2122,2021,1919,1868,1818,1767,1717,1666,1616,1565,1514,1463,1412,1374,1336,1297,1259,1221,1182,1144,1105,1067,1028,1004,980,956,932,908,883,859,835,811,787,783,778,774,770,765,761,756,752,748,743]},{"k":"LN","n":"Low-to-Negative","ssp":"SSP2","model":"AIM","v":[9352,8940,8534,8132,7736,7346,6961,6581,6307,6037,5770,5508,5249,4987,4730,4477,4227,3982,3811,3643,3478,3315,3155,2998,2844,2692,2543,2396,2353,2309,2267,2224,2182,2140,2099,2057,2017,1976,1943,1910,1878,1845,1813,1783,1753,1724,1694,1665,1627,1590,1554,1517,1481,1447,1412,1378,1345,1312,1296,1280,1264,1249,1233,1217,1202,1186,1170,1155,1135,1115,1095,1075,1055,1036,1016,996,977,957]},{"k":"VL","n":"Very Low","ssp":"SSP1","model":"REMIND-MAgPIE","v":[9352,9360,9367,8363,7367,6376,5393,4416,4032,3651,3272,2896,2522,2488,2454,2420,2386,2353,2312,2272,2232,2192,2153,2109,2065,2021,1977,1934,1913,1892,1872,1851,1831,1810,1790,1770,1750,1730,1710,1690,1671,1651,1632,1612,1593,1574,1555,1536,1512,1489,1465,1442,1419,1396,1373,1351,1328,1306,1287,1268,1249,1230,1211,1192,1173,1154,1135,1116,1095,1074,1054,1033,1012,992,971,951,930,909]}];
 /* ScenarioMIP-CMIP7 pathways */
 (function(){
  const svg=document.getElementById("sc"),w=1080,h=380,m={l:48,r:16,t:12,b:26},s=d3.select(svg);
  const x=d3.scaleLinear([1990,2100],[m.l,w-m.r]),y=d3.scaleLinear([0,13000],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(11));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(d3.format("~s")).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
+ axes(s,x,y,w,h,m,{xt:11,yt:6,yf:"~s",grid:.35});
  s.append("rect").attr("x",x(2025)).attr("y",m.t).attr("width",x(2100)-x(2025)).attr("height",h-m.t-m.b).attr("fill","currentColor").attr("opacity",.03);
  s.append("text").attr("x",x(2026)+6).attr("y",m.t+14).attr("class","lbl mut").text("Scenarios →");
  s.append("text").attr("x",x(2024)-6).attr("y",m.t+14).attr("class","lbl mut").attr("text-anchor","end").text("← Estimates");
@@ -446,10 +442,9 @@ const SC=[{"k":"H","n":"High","ssp":"SSP3","model":"GCAM","v":[9352,9521,9691,98
  const conc=oneBox;
  const csvg=document.getElementById("scc"),cw=1080,ch=360,cm={l:48,r:16,t:12,b:26},cs=d3.select(csvg);
  const cx=d3.scaleLinear([1997,2100],[cm.l,cw-cm.r]),cy=d3.scaleLinear([0,46],[ch-cm.b,cm.t]);
- cs.append("g").attr("class","ax").attr("transform",`translate(0,${ch-cm.b})`).call(d3.axisBottom(cx).tickFormat(d3.format("d")).ticks(11));
- cs.append("g").attr("class","ax").attr("transform",`translate(${cm.l},0)`).call(d3.axisLeft(cy).ticks(5).tickSize(-(cw-cm.l-cm.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
+ axes(cs,cx,cy,cw,ch,cm,{xt:11,yt:5,grid:.35});
  cs.append("rect").attr("x",cx(2026.5)).attr("y",cm.t).attr("width",cx(2100)-cx(2026.5)).attr("height",ch-cm.t-cm.b).attr("fill","currentColor").attr("opacity",.03);
- cs.append("text").attr("x",cm.l+6).attr("y",cm.t+4).attr("dy",".7em").attr("class","lbl mut").text("parts per trillion");
+ unitLabel(cs,cm,"parts per trillion");
  const cl=d3.line().x((_,i)=>cx(2023+i)).y(v=>cy(v));
  const cg=cs.append("g");let CD=conc(1278);
  const cpaths=cg.selectAll("path").data(CD).join("path").attr("fill","none").attr("stroke",d=>`var(--s${d.k})`).attr("stroke-width",2.2).attr("stroke-linejoin","round").attr("d",d=>cl(d.c));
@@ -475,9 +470,8 @@ const SC=[{"k":"H","n":"High","ssp":"SSP3","model":"GCAM","v":[9352,9521,9691,98
  const CD=oneBox(1278);
  const svg=document.getElementById("g2"),w=420,h=380,m={l:40,r:22,t:14,b:26},s=d3.select(svg);
  const x=d3.scaleLinear([2015,2100],[m.l,w-m.r]),y=d3.scaleLinear([0,46],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).tickValues([2020,2040,2060,2080,2100]));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
- s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("dy",".7em").attr("class","lbl mut").text("parts per trillion");
+ axes(s,x,y,w,h,m,{xt:[2020,2040,2060,2080,2100],yt:5,grid:.35});
+ unitLabel(s,m,"parts per trillion");
  const ln=d3.line().x((_,i)=>x(2023+i)).y(v=>y(v));
  s.append("g").selectAll("path").data(CD).join("path").attr("fill","none").attr("stroke",d=>`var(--s${d.k})`).attr("stroke-width",2).attr("stroke-linejoin","round").attr("d",d=>ln(d.c));
  s.append("path").datum(N.filter(d=>d[0]>=2015)).attr("fill","none").attr("stroke","var(--accent)").attr("stroke-width",2.4).attr("d",d3.line().x(d=>x(d[0])).y(d=>y(d[1])));
@@ -493,10 +487,9 @@ const WD={"H":{"c":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.01,0.01,0.02,0.
 (function(){
  const svg=document.getElementById("wm"),w=1080,h=360,m={l:58,r:16,t:12,b:26},s=d3.select(svg),Y0=1950;
  const x=d3.scaleLinear([1950,2100],[m.l,w-m.r]),y=d3.scaleLinear([0,0.0145],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(15));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(7).tickFormat(d3.format(".3f")).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
+ axes(s,x,y,w,h,m,{xt:15,yt:7,yf:".3f",grid:.35});
  s.append("rect").attr("x",x(2025)).attr("y",m.t).attr("width",x(2100)-x(2025)).attr("height",h-m.t-m.b).attr("fill","currentColor").attr("opacity",.03);
- s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("dy",".7em").attr("class","lbl mut").text("°C of warming from SF₆");
+ unitLabel(s,m,"°C of warming from SF₆");
  const K=SC.map(d=>d.k),lab=Object.fromEntries(SC.map(d=>[d.k,d.n]));lab.Z="Emissions stop in 2026";
  const ln=d3.line().x((_,i)=>x(Y0+i)).y(v=>y(v/1000));
  const band=s.append("path").attr("fill","currentColor").attr("opacity",.12).style("display","none");
@@ -523,11 +516,10 @@ const WL={"h":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.01,0.01,0.01,0.01,0.01,0.02,0.02,0.
 (function(){
  const svg=document.getElementById("av"),w=1080,h=340,m={l:58,r:16,t:12,b:26},s=d3.select(svg),Y0=1950;
  const x=d3.scaleLinear([2000,2300],[m.l,w-m.r]),y=d3.scaleLinear([0,0.024],[h-m.b,m.t]);
- s.append("g").attr("class","ax").attr("transform",`translate(0,${h-m.b})`).call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(12));
- s.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(d3.format(".3f")).tickSize(-(w-m.l-m.r))).call(g=>g.selectAll(".tick line").attr("opacity",.35)).call(g=>g.select(".domain").remove());
+ axes(s,x,y,w,h,m,{xt:12,yt:6,yf:".3f",grid:.35});
  s.append("rect").attr("x",x(2100)).attr("y",m.t).attr("width",x(2300)-x(2100)).attr("height",h-m.t-m.b).attr("fill","currentColor").attr("opacity",.04);
  s.append("text").attr("x",x(2100)+6).attr("y",m.t+14).attr("class","lbl mut").text("Stylised extensions →");
- s.append("text").attr("x",m.l+6).attr("y",m.t+4).attr("dy",".7em").attr("class","lbl mut").text("°C of warming from SF₆");
+ unitLabel(s,m,"°C of warming from SF₆");
  const pts=(k,a)=>WL[k].map((v,i)=>[Y0+i,v/1000]).filter(d=>d[0]>=a);
  s.append("path").datum(WL.h.map((v,i)=>[Y0+i,v/1000,WL.z[i]/1000]).filter(d=>d[0]>=2025)).attr("fill","var(--sH)").attr("opacity",.14).attr("d",d3.area().x(d=>x(d[0])).y0(d=>y(d[2])).y1(d=>y(d[1])));
  const line=d3.line().x(d=>x(d[0])).y(d=>y(d[1]));

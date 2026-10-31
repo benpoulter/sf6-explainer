@@ -47,7 +47,7 @@ def party_series(zpath):
     if xlsx:
         return sf6_from_workbook(z.read(latest_year_workbook(xlsx)))
     inner = sorted(n for n in z.namelist() if n.lower().endswith(".zip"))
-    pick = [n for n in inner if "2023" in n or "_2023" in n] or inner     # Canada: 2008_2023; EU: zipped/2023.zip
+    pick = [n for n in inner if "2023" in n] or inner     # Canada: ..._2008_2023_...zip; EU: zipped/2023.zip
     z2 = zipfile.ZipFile(io.BytesIO(z.read(pick[-1])))
     return sf6_from_workbook(z2.read(latest_year_workbook(z2.namelist())))
 
