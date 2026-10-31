@@ -30,6 +30,7 @@ figure{margin:24px 0}svg{display:block;width:100%;height:auto}
 .bar{width:140px;height:10px;border-radius:2px}
 .panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:16px}
 .panel h3{font:500 22px/1.2 "Newsreader",Georgia,serif;margin:0 0 2px}.panel .muted{margin:0 0 8px}
+.csel{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:0 0 12px}.csel select{flex:1;min-width:0}
 .pstats{display:flex;gap:22px;margin-bottom:6px}.pstats div{display:flex;flex-direction:column}.pstats b{font:500 21px "Newsreader",Georgia,serif}.pstats span{font-size:13px;color:var(--muted)}
 #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:4px 8px;border-radius:4px;font-size:13px;display:none;z-index:5}
 button{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:4px;padding:3px 10px;cursor:pointer}button:focus-visible{outline:2px solid var(--accent)}
@@ -60,8 +61,8 @@ h3.sub{font:500 20px/1.3 "Newsreader",Georgia,serif;margin:28px 0 6px}
 p a{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}p a:hover{text-decoration-thickness:2px}
 .byline{font-size:13px;color:var(--muted);margin:12px 0 0}
 .fb{margin-top:56px}.fbrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}.fbrow label{font-size:14px;color:var(--muted)}
-.fbrow select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;max-width:100%}
-.fbbtn{font-size:14px;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:4px;padding:6px 14px}.fbbtn:hover{opacity:.88}.fbbtn:focus-visible,.fbrow select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fbrow select,.csel select{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:4px;padding:5px 8px;max-width:100%}
+.fbbtn{font-size:14px;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:4px;padding:6px 14px}.fbbtn:hover{opacity:.88}.fbbtn:focus-visible,.fbrow select:focus-visible,.csel select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .toc{margin:30px 0 4px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:14px 0 16px}
 .toct{font:500 12px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 .toc ol{list-style:none;margin:0;padding:0;columns:2;column-gap:36px;counter-reset:t}
@@ -117,13 +118,13 @@ footer{margin:64px 0 40px;border-top:1px solid var(--rule);padding-top:16px}
 <div class="mapbox"><div>
 <div class="map"><svg id="map" viewBox="0 0 960 400" role="img" aria-label="World map of SF6 emissions"></svg></div>
 <div class="ctl"><span class="yr" id="yr"></span><input id="sl" type="range" aria-label="Year"><span>0</span><div class="bar" id="bar"></div><span id="mx"></span><span>t SF₆/yr</span></div></div>
-<div class="panel"><h3 id="pt"></h3><p class="muted" id="ph"></p>
+<div class="panel"><label class="csel"><span>Country</span><select id="cs"><option value="">All countries combined</option></select></label><h3 id="pt"></h3><p class="muted" id="ph"></p>
 <div class="pstats"><div><b id="s1"></b><span id="l1"></span></div><div><b id="s2"></b><span id="l2"></span></div></div>
 <svg id="ch" viewBox="0 0 400 230" role="img" aria-label="Time series of SF6 emissions"></svg><div class="lg" id="lg2"></div>
 <p class="rsw"><button id="rs" hidden>Show all countries combined</button></p></div></div></div>
 <div class="w">
 <h2 id="map-notes">What the map shows</h2>
-<p>China has been the largest emitter since about 2010 (the US led before that) and accounted for about 74% of the dataset’s 2025 total, up from about 2% in 1990. India, the US, Iran, Saudi Arabia and South Korea come next. Those are places with large grids, magnesium industries or chip plants, not necessarily SF₆ factories. Where a gas is made and where it leaks are often different places.</p>
+<p>China has been the largest emitter since 2008 (the US led before that) and accounted for about 74% of the dataset’s 2025 total, up from about 2% in 1990. India, the US, Iran, Saudi Arabia and South Korea come next. Those are places with large grids, magnesium industries or chip plants, not necessarily SF₆ factories. Where a gas is made and where it leaks are often different places.</p>
 <h2 id="estimates">Four estimates, two methods</h2>
 <p>Three of the datasets here count SF₆ from the bottom up. They take activity data, such as how much switchgear is installed or how much magnesium is cast, and multiply it by an assumed leak or emission rate. EDGAR does this for every country with one method. GAINS, IIASA’s emissions model, does the same with its own assumptions. The national inventories that 42 countries submitted to the UN climate convention (UNFCCC) in 2025 are those countries’ own counts, covering 1990 to 2023.</p>
 <p>The fourth works from the top down. Martin Vojta and colleagues (2024) took SF₆ measurements from monitoring stations worldwide and ran an atmospheric transport model backward in time to work out where the gas must have been released, for 2005 to 2021. Because the inversion needs a starting guess, they ran it three times, seeded with country reports, EDGAR and GAINS. The line shows the average of the three runs and the shading shows their combined uncertainty range.</p>
@@ -378,11 +379,14 @@ const NAMES=Object.fromEntries(W.features.map(f=>[f.properties.i,f.properties.n]
 const nm=n=>n.replace("Taiwan_Province of China","Taiwan").replace(", Islamic Republic of","").replace("Korea, Republic of","South Korea").replace("Libyan Arab Jamahiriya","Libya").replace("Russian Federation","Russia");
 const cname=iso=>nm(D.names[iso]||NAMES[iso]||iso);
 const paths=d3.select("#map").selectAll("path").data(FC.features).join("path").attr("class","c").attr("d",path)
- .attr("tabindex",f=>anyData(f.properties.i)?0:null).attr("aria-label",f=>f.properties.n)
+ .attr("aria-label",f=>f.properties.n)
  .on("mousemove",(e,f)=>{const v=val(ds,f.properties.i,year);showTip(e,cname(f.properties.i)+(v!=null?": "+fmt(v)+" t":": no "+DS[ds].label+" data"))})
  .on("mouseleave",hideTip)
- .on("click",(e,f)=>{if(anyData(f.properties.i)){sel=f.properties.i;draw()}})
- .on("keydown",(e,f)=>{if((e.key==="Enter"||e.key===" ")&&anyData(f.properties.i)){e.preventDefault();sel=f.properties.i;draw()}});
+ .on("click",(e,f)=>{if(anyData(f.properties.i)){sel=f.properties.i;draw()}});
+/* Country picker: one control for keyboards and screen readers, and for countries too small to tap */
+const cs=document.getElementById("cs");
+Object.keys(NAMES).filter(anyData).map(i=>[i,cname(i)]).sort((a,b)=>a[1].localeCompare(b[1])).forEach(([i,n])=>{const o=document.createElement("option");o.value=i;o.textContent=n;cs.appendChild(o)});
+cs.addEventListener("change",()=>{sel=cs.value||null;draw()});
 function setDS(k){ds=k;const d=DS[k];sl.min=d.y0;sl.max=d.y1;year=Math.max(d.y0,Math.min(d.y1,year));sl.value=year;
  document.querySelectorAll("#dsw button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.k===k));document.getElementById("mx").textContent=fmt(d.mx);
  document.getElementById("dsn").textContent=({e:"EDGAR covers 76 countries, 1990–2025.",u:"Inventories from 42 countries that filed in 2025, 1990–2023. The US did not file; Belarus withheld its SF₆ figures.",g:"Model estimates for 2005–2020, summed from IIASA’s 0.5° grid; country totals depend on how GAINS spread emissions across that grid.",i:"Atmospheric inversion for 2005–2021: the run seeded with EDGAR v8, summed from Vojta et al.’s 1° grid. Small countries are poorly resolved, emissions near borders can land on the wrong side, and poorly monitored regions stay close to the starting guess."})[k];draw()}
@@ -401,8 +405,8 @@ function draw(){
  $("yr").textContent=year;
  paths.attr("fill",f=>{const v=val(ds,f.properties.i,year);return v!=null?col(v):null}).classed("nd",f=>val(ds,f.properties.i,year)==null).classed("sel",f=>f.properties.i===sel);
  $("pt").textContent=sel?cname(sel):(ds==="u"?"All reporting countries":"All countries combined");
- $("ph").textContent=sel?"SF₆ emissions, tonnes per year":"Click a country on the map";
- $("rs").hidden=!sel;
+ $("ph").textContent=sel?"SF₆ emissions, tonnes per year":"Click a country on the map or choose one above";
+ $("rs").hidden=!sel;cs.value=sel||"";
  const v=val(ds,sel,year),pk=a?d3.maxIndex(a):-1,hasPk=pk>=0&&a[pk]!=null;
  $("s1").textContent=v!=null?fmt(v)+" t":"–";$("l1").textContent=d.label+", "+year;
  $("s2").textContent=hasPk?fmt(a[pk])+" t":"–";$("l2").textContent=hasPk?"peak, "+(d.y0+pk):"no "+d.label+" data";

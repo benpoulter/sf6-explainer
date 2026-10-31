@@ -58,6 +58,18 @@ emis = table("scenariomip_cmip7_sf6_emissions_t.csv", "scenario", "model")
 high = next(v for k, v in emis.items() if k[0] == "High")
 check("High 2026-2100 at GWP 23,500 (Gt CO2e)", sum(high[y] for y in range(2026, 2101)) * 23500 / 1e9, 19.4, 0.1)
 
+# Figures from the "Where the emissions come from" and "What the map shows" sections
+sectors = table("edgar_sf6_country_sector_t.csv", "iso3", "sector")
+world25 = s(edgar, edgar, 2025)
+share = lambda code: 100 * sum(v[2025] for k, v in sectors.items() if k[1].startswith(code)) / world25
+check("Electrical equipment share 2025 (%, page: 92)", share("2.G"), 92, 0.5)
+check("Metal industry share 2025 (%, page: 5)", share("2.C"), 5, 0.5)
+check("Electronics share 2025 (%, page: 3)", share("2.E"), 3, 0.5)
+check("Chemical production share 2025 (%, page: 1)", share("2.B"), 1, 0.5)
+check("Countries with production emissions (page: 8)", sum(1 for k, v in sectors.items() if k[1].startswith("2.B") and max(v.values()) > 0), 8, 0)
+check("China share of EDGAR 2025 (%, page: 74)", 100 * edgar["CHN"][2025] / world25, 74, 0.5)
+check("First year China is the largest emitter (page: 2008)", min(y for y in range(1990, 2026) if max(edgar, key=lambda c: edgar[c][y]) == "CHN"), 2008, 0)
+
 if failures:
     sys.exit(f"{len(failures)} check(s) failed: {', '.join(failures)}")
 print("all checks passed")
