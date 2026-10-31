@@ -1,0 +1,6 @@
+numpy
+pandas
+pyarrow
+openpyxl
+netCDF4
+shapely>=2.0
